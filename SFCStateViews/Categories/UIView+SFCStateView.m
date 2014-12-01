@@ -18,7 +18,7 @@ static char *_stateViewsKey;
 
 
 - (NSString *)keyForState:(NSInteger)state {
-   return [NSString stringWithFormat:@"%d", state];
+   return [NSString stringWithFormat:@"%ld", (long)state];
 }
 
 
@@ -36,7 +36,7 @@ static char *_stateViewsKey;
 }
 
 
-- (void)setStateView:(SFCStateView *)stateView forViewState:(NSInteger)state {
+- (void)sfc_setStateView:(SFCStateView *)stateView forViewState:(NSInteger)state {
    // Validate state view
    if ( ! stateView || ! [stateView isKindOfClass:[SFCStateView class]]) {
       return;
@@ -47,7 +47,7 @@ static char *_stateViewsKey;
 }
 
 
-- (SFCStateView *)stateViewForViewState:(NSInteger)state {
+- (SFCStateView *)sfc_stateViewForViewState:(NSInteger)state {
    NSMutableDictionary *stateViews = objc_getAssociatedObject(self, &_stateViewsKey);
    if (stateViews) {
       return [stateViews objectForKey:[self keyForState:state]];
@@ -56,7 +56,7 @@ static char *_stateViewsKey;
 }
 
 
-- (SFCStateView *)currentStateView {
+- (SFCStateView *)sfc_currentStateView {
    for (UIView *subview in self.subviews) {
       if ([subview isKindOfClass:[SFCStateView class]]) {
          return (SFCStateView *)subview;
@@ -66,7 +66,7 @@ static char *_stateViewsKey;
 }
 
 
-- (void)removeAllStateViews {
+- (void)sfc_removeAllStateViews {
    // Remove state views
    NSMutableArray *stateViews = objc_getAssociatedObject(self, &_stateViewsKey);
    if (stateViews) {
@@ -81,25 +81,25 @@ static char *_stateViewsKey;
 
 #pragma mark -
 
-- (NSInteger)viewState {
+- (NSInteger)sfc_viewState {
    // Read view state from associated object
    NSNumber *viewState = objc_getAssociatedObject(self, &_viewStateKey);
    return [viewState intValue];
 }
 
 
-- (void)setViewState:(NSInteger)newViewState {
-   if (self.viewState != newViewState) {
+- (void)sfc_setViewState:(NSInteger)newViewState {
+   if (self.sfc_viewState != newViewState) {
       // Remember the state associated object
-      objc_setAssociatedObject(self, &_viewStateKey, [NSNumber numberWithInt:newViewState], OBJC_ASSOCIATION_RETAIN);
+      objc_setAssociatedObject(self, &_viewStateKey, @(newViewState), OBJC_ASSOCIATION_RETAIN);
       
       // Try to show proper state view
       // If state view for state isn't set - just hide current state view if exists
-      SFCStateView *stateView = [self stateViewForViewState:newViewState];
+      SFCStateView *stateView = [self sfc_stateViewForViewState:newViewState];
       if (stateView) {
          [stateView showInView:self];
       } else {
-         [self hideStateView];
+         [self sfc_hideStateView];
       }
    }
 }
@@ -108,7 +108,7 @@ static char *_stateViewsKey;
 
 #pragma mark -
 
-- (void)showStateView:(SFCStateView *)stateView {
+- (void)sfc_showStateView:(SFCStateView *)stateView {
    // Validate state view
    if ( ! stateView || ! [stateView isKindOfClass:[SFCStateView class]]) {
       return;
@@ -119,16 +119,15 @@ static char *_stateViewsKey;
 }
 
 
-- (void)hideStateView {
+- (void)sfc_hideStateView {
    // Find state view and hide it
    for (UIView *subview in self.subviews) {
       if ([subview isKindOfClass:[SFCStateView class]]) {
          // Send hide message with delay to prevent animation flicking 
          // if state views switching very fast.
-         [(SFCStateView *)subview performSelector:@selector(hide) withObject:nil afterDelay:0.1];
+         [subview performSelector:@selector(hide) withObject:nil afterDelay:0.1];
       }
    }
 }
-
 
 @end
