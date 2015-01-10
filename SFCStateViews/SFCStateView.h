@@ -37,14 +37,14 @@
 
 /**
  Designated factory method
- @return SFStateView
+ @return SFCStateView
  */
 + (instancetype)stateViewWithDelegate:(id<SFCStateViewDelegate>)delegate;
 
 /**
  Designated initializer
  Init state view with title with delegate
- @return SFStateView
+ @return SFCStateView
  */
 - (instancetype)initWithStateViewDelegate:(id<SFCStateViewDelegate>)delegate;
 
